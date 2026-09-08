@@ -120,6 +120,20 @@ def test_run_init_with_name(mocker):
 
 
 @pytest.mark.usefixtures("valid_dir")
+def test_run_init_with_base(mocker):
+    mocker.patch.object(sys, "argv", ["rockcraft", "init", "--base=ubuntu@26.04"])
+
+    cli.run()
+
+    rockcraft_yaml_path = Path("rockcraft.yaml")
+    rock_project = project.Project.unmarshal(
+        yaml.safe_load(rockcraft_yaml_path.read_text())
+    )
+
+    assert rock_project.base == "ubuntu@26.04"
+
+
+@pytest.mark.usefixtures("valid_dir")
 def test_run_init_with_invalid_name(mocker):
     mocker.patch.object(sys, "argv", ["rockcraft", "init", "--name=-f"])
     return_code = cli.run()
