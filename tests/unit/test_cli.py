@@ -119,6 +119,38 @@ def test_run_init_with_name(mocker):
     assert rock_project.name == "foobar"
 
 
+@pytest.mark.parametrize(
+    ("profile", "base_key"),
+    [
+        ("simple", "base"),
+        ("django-framework", "build-base"),
+        ("expressjs-framework", "build-base"),
+        ("fastapi-framework", "build-base"),
+        ("flask-framework", "build-base"),
+        ("go-framework", "build-base"),
+        ("spring-boot-framework", "build-base"),
+    ],
+)
+@pytest.mark.usefixtures("valid_dir")
+def test_run_init_with_base(mocker, profile, base_key):
+    mocker.patch.object(
+        sys,
+        "argv",
+        [
+            "rockcraft",
+            "init",
+            f"--profile={profile}",
+            "--base=ubuntu@26.04",
+        ],
+    )
+
+    cli.run()
+
+    rockcraft_yaml = yaml.safe_load(Path("rockcraft.yaml").read_text())
+
+    assert rockcraft_yaml[base_key] == "ubuntu@26.04"
+
+
 @pytest.mark.usefixtures("valid_dir")
 def test_run_init_with_invalid_name(mocker):
     mocker.patch.object(sys, "argv", ["rockcraft", "init", "--name=-f"])
