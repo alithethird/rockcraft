@@ -33,6 +33,9 @@ from rockcraft.services.image import RockcraftImageService
 from rockcraft.usernames import SUPPORTED_GLOBAL_USERNAMES
 from rockcraft.utils import parse_command
 
+if typing.TYPE_CHECKING:
+    from craft_application.services import state
+
 
 class RockcraftPackageService(PackageService):
     """Package service subclass for Rockcraft."""
@@ -106,12 +109,15 @@ class RockcraftPackageService(PackageService):
         """
         platform = self._build_info.platform
         state_service = self._services.get("state")
-        state_entries = [
+        state_entries: list[dict[str, state.ValueType]] = [
             {"name": name, "path": str(path)} for name, path in artifacts.items()
         ]
 
         state_service.set(
-            "artifacts", platform, value=state_entries or None, overwrite=True
+            "artifacts",
+            platform,
+            value=state_entries or None,  # ty: ignore[invalid-argument-type]
+            overwrite=True,
         )
 
     @property
